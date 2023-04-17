@@ -35,7 +35,7 @@ include(${_project_options_SOURCE_DIR}/Index.cmake)
 
 # Set the project name and language
 project(
-  sockes5-with-cpp14-boost
+  relay-with-cpp14-boost
   VERSION 0.0.1
   DESCRIPTION ""
   HOMEPAGE_URL ""
@@ -127,6 +127,8 @@ target_compile_features(project_options INTERFACE cxx_std_${CMAKE_CXX_STANDARD})
 # TODO: The INTERFACE library NAMESPACE ALIAS are missing! CK
 add_library(myproject::project_options INTERFACE IMPORTED)
 add_library(myproject::project_warnings INTERFACE IMPORTED)
+
+find_package(Boost REQUIRED) # COMPONENTS headers program_options thread log) <- How this can be used in Conan 2.0 ?
 
 # configure files based on CMake configuration options
 add_subdirectory(configured_files)
