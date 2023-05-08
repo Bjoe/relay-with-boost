@@ -350,7 +350,7 @@ public:
         }
 
         aio_context_t ctx = {0};
-        r = io_setup(2, &ctx);
+        r = io_setup(8, &ctx);
         if (r < 0) {
           throw std::logic_error("io_setup()");
         }
@@ -358,51 +358,41 @@ public:
 #define BUFFER_SIZE (128 * 1024)
         char buf[BUFFER_SIZE];
 
-        struct iocb cb[4];
+        struct iocb cb[2];
 
-        cb[0].aio_fildes = static_cast<std::uint32_t>(fd_out);
+        cb[0].aio_fildes = fd_out;
         cb[0].aio_lio_opcode = IOCB_CMD_PWRITE;
         cb[0].aio_buf = (uint64_t)buf;
         cb[0].aio_nbytes = 0;
 
-        cb[1].aio_fildes = static_cast<std::uint32_t>(cd);
+        cb[1].aio_fildes = cd;
         cb[1].aio_lio_opcode = IOCB_CMD_PREAD;
         cb[1].aio_buf = (uint64_t)buf;
         cb[1].aio_nbytes = BUFFER_SIZE;
 
-        cb[2].aio_fildes = static_cast<std::uint32_t>(cd);
-        cb[2].aio_lio_opcode = IOCB_CMD_PWRITE;
-        cb[2].aio_buf = (uint64_t)buf;
-        cb[2].aio_nbytes = 0;
+        struct iocb *list_of_iocb[2] = {&cb[0], &cb[1]};
 
-        cb[3].aio_fildes = static_cast<std::uint32_t>(fd_out);
-        cb[3].aio_lio_opcode = IOCB_CMD_PREAD;
-        cb[3].aio_buf = (uint64_t)buf;
-        cb[3].aio_nbytes = BUFFER_SIZE;
-
-        struct iocb *list_of_iocb[4] = {&cb[0], &cb[1], &cb[2], &cb[3]};
-
-              // TODO Implement io_submit from fd_out -> cd
+        // TODO Implement io_submit from fd_out -> cd
         while (1) {
           // io_submit on blocking network sockets will
           // block. It will loop over sockets one by one,
           // blocking on each operation. We abuse this to do
           // write+read in one syscall. In first iteration the
           // write is empty, we do write of size 0.
-          r = io_submit(ctx, 4, list_of_iocb);
-          if (r > 4) {
+          r = io_submit(ctx, 2, list_of_iocb);
+          if (r != 2) {
             std::ostringstream o{};
-            o << "io_submit() -> r " << r;
+            o << "io_submit() r -> " << r << '\n';
             throw std::logic_error(o.str());
           }
 
           /* We must pick up the result, since we need to get
            * the number of bytes read. */
-          struct io_event events[4] = {{0}};
-          r = io_getevents(ctx, 4, 4, events, nullptr);
+          struct io_event events[2] = {{0}};
+          r = io_getevents(ctx, 1, 2, events, NULL);
           if (r < 0) {
             std::ostringstream o{};
-            o << "io_getevents() -> r " << r;
+            o << "io_getevents() r -> " << r << '\n';
             throw std::logic_error(o.str());
           }
           if (events[0].res < 0) {
@@ -419,22 +409,7 @@ public:
             BOOST_LOG_TRIVIAL(error) << "[-] edge side EOF\n";
             break;
           }
-          if (events[2].res < 0) {
-            errno = -events[0].res;
-            BOOST_LOG_TRIVIAL(error) << "io_submit(IOCB_CMD_PWRITE): " << strerror(errno);
-            break;
-          }
-          if (events[3].res < 0) {
-            errno = -events[1].res;
-            BOOST_LOG_TRIVIAL(error) << "io_submit(IOCB_CMD_PREAD): " << strerror(errno);
-            break;
-          }
-          if (events[3].res == 0) {
-            BOOST_LOG_TRIVIAL(error) << "[-] edge side EOF\n";
-            break;
-          }
           cb[0].aio_nbytes = events[1].res;
-          cb[2].aio_nbytes = events[3].res;
         }
     }
 
