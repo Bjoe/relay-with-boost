@@ -4,10 +4,17 @@ add_executable(btur)
 target_sources(btur
  PRIVATE
     main.cpp
+    options.hpp
     TcpRelayServer.cpp
     TcpRelayServer.hpp
     UdpRelayServer.cpp
     UdpRelayServer.hpp
+
+    sockmap/tbpf.h
+    sockmap/tbpf.c
+    sockmap/sockmap-ebpf.c
+
+    iosubmit.h
 )
 target_link_libraries(
   btur

@@ -8,8 +8,41 @@
 #include "UdpRelayServer.hpp"
 #include "TcpRelayServer.hpp"
 
+#include "options.hpp"
+
+#include <linux/bpf.h>
+#include <sys/resource.h>
+extern "C" {
+#include "sockmap/tbpf.h"
+};
+
 constexpr int LOCAL_PORT = 20000;
 constexpr int BUFFER_SIZE = 8192;
+
+extern size_t bpf_insn_prog_parser_cnt;
+extern struct bpf_insn bpf_insn_prog_parser[];
+extern struct tbpf_reloc bpf_reloc_prog_parser[];
+
+extern size_t bpf_insn_prog_verdict_cnt;
+extern struct bpf_insn bpf_insn_prog_verdict[];
+extern struct tbpf_reloc bpf_reloc_prog_verdict[];
+
+std::istream& operator>>(std::istream& in, Options& options)
+{
+  std::string token;
+  in >> token;
+  if (token == "tcp")
+    options = Options::TCP_RELAY;
+  else if (token == "iosubmit")
+    options = Options::IOSUBMIT_RELAY;
+  else if (token == "splice")
+    options = Options::SPLICE_RELAY;
+  else if (token == "sockmap")
+    options = Options::SOCKMAP_RELAY;
+  else
+    in.setstate(std::ios_base::failbit);
+  return in;
+}
 
 int main(int argc, char* argv[])
 {
@@ -24,6 +57,7 @@ int main(int argc, char* argv[])
             ("buffer_size,b", boost::program_options::value<std::size_t>()->default_value(BUFFER_SIZE), "Buffer size")
             ("destination_ip,i", boost::program_options::value<std::string>(), "Destination IP address")
             ("destination_port,p", boost::program_options::value<unsigned short>(), "Destination port")
+            ("relay,r", boost::program_options::value<Options>()->required(), "Relay option")
             ;
 
         boost::program_options::variables_map variables_map;
@@ -47,6 +81,7 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
+        Options options = variables_map["relay"].as<Options>();
         auto port = variables_map["local_port"].as<const unsigned short>();
         auto buffer_size = variables_map["buffer_size"].as<const std::size_t>();
         auto localAddress = variables_map["local_address"].as<std::string>();
@@ -62,6 +97,71 @@ int main(int argc, char* argv[])
             std::cerr << "Destination port is needed" << '\n';
             std::cout << desc << '\n';
             return EXIT_FAILURE;
+        }
+
+        int sock_map{};
+        if(options == Options::SOCKMAP_RELAY) {
+            /*
+             * Initialize ebpf
+             */
+            /* [*] SOCKMAP requires more than 16MiB of locked mem */
+            struct rlimit rlim;
+            rlim.rlim_cur = 128 * 1024 * 1024;
+            rlim.rlim_max = 128 * 1024 * 1024;
+
+            /* ignore error */
+            setrlimit(RLIMIT_MEMLOCK, &rlim);
+
+            /* [*] Prepare ebpf */
+            sock_map = tbpf_create_map(BPF_MAP_TYPE_SOCKMAP, sizeof(int),
+              sizeof(int), 2, 0);
+            if (sock_map < 0) {
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_SOCKMAP)\n";
+              return EXIT_FAILURE;
+            }
+
+            /* sockmap is only used in prog_verdict */
+            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
+              "sock_map", sock_map);
+
+            /* Load prog_parser and prog_verdict */
+            char log_buf[16 * 1024];
+            int bpf_parser = tbpf_load_program(
+              BPF_PROG_TYPE_SK_SKB, bpf_insn_prog_parser,
+              bpf_insn_prog_parser_cnt, "Dual BSD/GPL",
+              KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
+            if (bpf_parser < 0) {
+              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_parser)\n";
+              return EXIT_FAILURE;
+            }
+
+            int bpf_verdict = tbpf_load_program(
+              BPF_PROG_TYPE_SK_SKB, bpf_insn_prog_verdict,
+              bpf_insn_prog_verdict_cnt, "Dual BSD/GPL",
+              KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
+            if (bpf_verdict < 0) {
+              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_verdict)\n";
+              return EXIT_FAILURE;
+            }
+
+            /* Attach maps to programs. It's important to attach SOCKMAP
+             * to both parser and verdict programs, even though in parser
+             * we don't use it. The whole point is to make prog_parser
+             * hooked to SOCKMAP.*/
+            int r = tbpf_prog_attach(bpf_parser, sock_map, BPF_SK_SKB_STREAM_PARSER,
+              0);
+            if (r < 0) {
+              std::cerr << "bpf(PROG_ATTACH)\n";
+              return EXIT_FAILURE;
+            }
+
+            r = tbpf_prog_attach(bpf_verdict, sock_map, BPF_SK_SKB_STREAM_VERDICT,
+              0);
+            if (r < 0) {
+              std::cerr << "bpf(PROG_ATTACH)\n";
+              return EXIT_FAILURE;
+            }
+            /*************************************************************************/
         }
 
         auto destinationIp = variables_map["destination_ip"].as<std::string>();
@@ -87,7 +187,7 @@ int main(int argc, char* argv[])
         relay::UdpRelayServer server(io_context, relayUdpEndpoint, buffer_size);
         server.do_receive();
 
-        relay::TcpRelayServer tcpServer(io_context, relayEndpoint, buffer_size);
+        relay::TcpRelayServer tcpServer(io_context, relayEndpoint, buffer_size, sock_map, options);
         tcpServer.start();
 
         io_context.run();

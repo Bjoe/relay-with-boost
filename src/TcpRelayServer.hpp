@@ -3,9 +3,12 @@
 
 #include <cstdlib>
 #include <string>
+#include <vector>
+#include <memory>
 #include <boost/asio.hpp>
 #include <boost/array.hpp>
 #include <boost/optional.hpp>
+#include "options.hpp"
 
 namespace relay {
 
@@ -40,18 +43,29 @@ private:
   unsigned short destinationEndpointPort_{};
 };
 
+class TcpSession;
 
 class TcpRelayServer
 {
 public:
-  TcpRelayServer(boost::asio::io_context& io_context, const RelayTcpEndpoint &endpoint, const std::size_t buffer_size);
+  TcpRelayServer(
+    boost::asio::io_context& io_context,
+    const RelayTcpEndpoint &endpoint,
+    const std::size_t buffer_size,
+    int sock_map,
+    Options options);
 
     void start();
+
+    void close();
 private:
     boost::asio::io_context& io_context_;
     boost::asio::ip::tcp::acceptor local_tcp_acceptor_;
     boost::asio::ip::tcp::endpoint destination_endpoint_;
     const std::size_t buffer_size_{};
+    int sock_map_{};
+    Options options_{};
+    std::vector<std::shared_ptr<TcpSession>> sessions_;
 };
 
 } // namespace relay
