@@ -5,13 +5,205 @@
 
 #include "tbpf.h"
 
-size_t bpf_insn_prog_parser_cnt = 2;
+size_t bpf_insn_prog_parser_cnt = 34;
 
 struct bpf_insn bpf_insn_prog_parser[] = {
 	{
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_6,
+		.src_reg = BPF_REG_1,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_6,
+		.off     = 136,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_6,
+		.off     = 132,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x73,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -8,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1852140576	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1680154682	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -16,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1953656688	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1680154682	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -24,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869357156	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1600938339	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -32,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919905906	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 622869108	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -40,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1702064737	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 539568242	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -48,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919967008	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1885300591	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -56,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1801678707	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 980443501	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_5,
+		.src_reg = BPF_REG_6,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xdc,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 32	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -64	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 57	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 6	/**/
+	}, {
 		.code    = 0x61,
 		.dst_reg = BPF_REG_0,
-		.src_reg = BPF_REG_1,
+		.src_reg = BPF_REG_6,
 		.off     = 0,
 		.imm     = 0	/**/
 	}, {
@@ -30,20 +222,80 @@ struct tbpf_reloc bpf_reloc_prog_parser[] = {
 		.offset = 0
 	}};
 
-size_t bpf_insn_prog_verdict_cnt = 32;
+size_t bpf_insn_prog_verdict_cnt = 187;
 
 struct bpf_insn bpf_insn_prog_verdict[] = {
 	{
-		.code    = 0xbf,
-		.dst_reg = BPF_REG_6,
+		.code    = 0x61,
+		.dst_reg = BPF_REG_3,
 		.src_reg = BPF_REG_1,
-		.off     = 0,
+		.off     = 136,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x63,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_3,
+		.off     = -4,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -104,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0x61,
-		.dst_reg = BPF_REG_4,
-		.src_reg = BPF_REG_6,
-		.off     = 136,
+		.dst_reg = BPF_REG_7,
+		.src_reg = BPF_REG_1,
+		.off     = 132,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1886527588	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 544502383	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869638688	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 622883954	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -72,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_9,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x73,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -54,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0xb7,
@@ -55,55 +307,49 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 		.code    = 0x6b,
 		.dst_reg = BPF_REG_10,
 		.src_reg = BPF_REG_1,
-		.off     = -4,
+		.off     = -56,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0xb7,
+		.dst_reg = BPF_REG_6,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 25637	/**/
+	}, {
+		.code    = 0x18,
 		.dst_reg = BPF_REG_1,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 540701810	/**/
+		.imm     = 1768190565	/**/
 	}, {
-		.code    = 0x63,
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 690517091	/**/
+	}, {
+		.code    = 0x7b,
 		.dst_reg = BPF_REG_10,
 		.src_reg = BPF_REG_1,
-		.off     = -8,
+		.off     = -80,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0x18,
 		.dst_reg = BPF_REG_1,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 1633906540	/**/
+		.imm     = 1919967008	/**/
 	}, {
 		.code    = 0x0,
 		.dst_reg = BPF_REG_0,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 1869635436	/**/
+		.imm     = 1985963887	/**/
 	}, {
 		.code    = 0x7b,
 		.dst_reg = BPF_REG_10,
 		.src_reg = BPF_REG_1,
-		.off     = -16,
-		.imm     = 0	/**/
-	}, {
-		.code    = 0x18,
-		.dst_reg = BPF_REG_1,
-		.src_reg = BPF_REG_0,
-		.off     = 0,
-		.imm     = 2019846432	/**/
-	}, {
-		.code    = 0x0,
-		.dst_reg = BPF_REG_0,
-		.src_reg = BPF_REG_0,
-		.off     = 0,
-		.imm     = 543434016	/**/
-	}, {
-		.code    = 0x7b,
-		.dst_reg = BPF_REG_10,
-		.src_reg = BPF_REG_1,
-		.off     = -24,
+		.off     = -88,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0x18,
@@ -121,37 +367,253 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 		.code    = 0x7b,
 		.dst_reg = BPF_REG_10,
 		.src_reg = BPF_REG_1,
-		.off     = -32,
+		.off     = -96,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_8,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1801678707	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 980443501	/**/
+	}, {
+		.code    = 0xdc,
+		.dst_reg = BPF_REG_7,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 32	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -96	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 43	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_7,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 6	/**/
+	}, {
+		.code    = 0x63,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -8,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -8	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/* relocation for arr_map */
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1852383336	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 544761188	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -48,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x73,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -26,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x6b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_6,
+		.off     = -28,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0xb7,
 		.dst_reg = BPF_REG_1,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 0	/**/
+		.imm     = 543520108	/**/
 	}, {
-		.code    = 0x73,
+		.code    = 0x63,
 		.dst_reg = BPF_REG_10,
 		.src_reg = BPF_REG_1,
-		.off     = -2,
+		.off     = -32,
 		.imm     = 0	/**/
 	}, {
-		.code    = 0xb7,
-		.dst_reg = BPF_REG_7,
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 1	/**/
+		.imm     = 757097509	/**/
 	}, {
-		.code    = 0x15,
-		.dst_reg = BPF_REG_4,
-		.src_reg = BPF_REG_0,
-		.off     = 1,
-		.imm     = 20000	/**/
-	}, {
-		.code    = 0xb7,
-		.dst_reg = BPF_REG_7,
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
+		.imm     = 1635131454	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -40,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1835363429	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1953068832	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -56,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869573215	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1601205611	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_6,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1718641184	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1885433183	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_6,
+		.off     = -72,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1768190565	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 690517091	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -80,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919967008	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1985963887	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -88,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_8,
+		.off     = -96,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_10,
+		.off     = -8,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0xbf,
@@ -164,17 +626,17 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 		.dst_reg = BPF_REG_1,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = -32	/**/
+		.imm     = -96	/**/
 	}, {
 		.code    = 0xb7,
 		.dst_reg = BPF_REG_2,
 		.src_reg = BPF_REG_0,
 		.off     = 0,
-		.imm     = 31	/**/
+		.imm     = 71	/**/
 	}, {
 		.code    = 0xbf,
-		.dst_reg = BPF_REG_3,
-		.src_reg = BPF_REG_7,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_0,
 		.off     = 0,
 		.imm     = 0	/**/
 	}, {
@@ -185,9 +647,669 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 		.imm     = 6	/**/
 	}, {
 		.code    = 0xbf,
-		.dst_reg = BPF_REG_1,
-		.src_reg = BPF_REG_6,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_10,
 		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -4	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/* relocation for port_map */
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_8,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x73,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -26,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_9,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869573215	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1601205611	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 25637	/**/
+	}, {
+		.code    = 0x6b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -28,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 543520108	/**/
+	}, {
+		.code    = 0x63,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -32,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 757097509	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1635131454	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -40,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1886134376	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 544502383	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -48,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1835363429	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1953068832	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -56,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_6,
+		.off     = -72,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1768190565	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 690517091	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -80,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919967008	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1985963887	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -88,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1801678707	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 980443501	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -96,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_10,
+		.off     = -4,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -96	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 71	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_8,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 6	/**/
+	}, {
+		.code    = 0x55,
+		.dst_reg = BPF_REG_8,
+		.src_reg = BPF_REG_0,
+		.off     = 34,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 25637	/**/
+	}, {
+		.code    = 0x6b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -28,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 543520108	/**/
+	}, {
+		.code    = 0x63,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -32,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 757097509	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1635131454	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -40,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1886527592	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 544502383	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -48,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1835363429	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1953068832	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -56,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1718641184	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1885433183	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -72,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1768190565	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 690517091	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -80,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919967008	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1985963887	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -88,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1801678707	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 980443501	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -96,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x73,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -26,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -96	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 71	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_7,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 6	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 100	/**/
+	}, {
+		.code    = 0x6b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -20,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 622883954	/**/
+	}, {
+		.code    = 0x63,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -24,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919885412	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869638688	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -32,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1869640224	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 622883954	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -40,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 544760937	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 790651941	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -48,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1835363429	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 540945696	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -56,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_9,
+		.off     = -64,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1718641184	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1885433183	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -72,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1768190565	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 690517091	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -80,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1919967008	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1985963887	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -88,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x18,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 1801678707	/**/
+	}, {
+		.code    = 0x0,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 980443501	/**/
+	}, {
+		.code    = 0x7b,
+		.dst_reg = BPF_REG_10,
+		.src_reg = BPF_REG_1,
+		.off     = -96,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x61,
+		.dst_reg = BPF_REG_5,
+		.src_reg = BPF_REG_10,
+		.off     = -4,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x7,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = -96	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_2,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 78	/**/
+	}, {
+		.code    = 0xb7,
+		.dst_reg = BPF_REG_3,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0xbf,
+		.dst_reg = BPF_REG_4,
+		.src_reg = BPF_REG_7,
+		.off     = 0,
+		.imm     = 0	/**/
+	}, {
+		.code    = 0x85,
+		.dst_reg = BPF_REG_0,
+		.src_reg = BPF_REG_0,
+		.off     = 0,
+		.imm     = 6	/**/
+	}, {
+		.code    = 0x79,
+		.dst_reg = BPF_REG_1,
+		.src_reg = BPF_REG_10,
+		.off     = -104,
 		.imm     = 0	/**/
 	}, {
 		.code    = 0x18,
@@ -202,9 +1324,9 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 		.off     = 0,
 		.imm     = 0	/**/
 	}, {
-		.code    = 0xbf,
+		.code    = 0xb7,
 		.dst_reg = BPF_REG_3,
-		.src_reg = BPF_REG_7,
+		.src_reg = BPF_REG_0,
 		.off     = 0,
 		.imm     = 0	/**/
 	}, {
@@ -230,9 +1352,17 @@ struct bpf_insn bpf_insn_prog_verdict[] = {
 
 struct tbpf_reloc bpf_reloc_prog_verdict[] = {
 	{
+		.name = "arr_map",
+		.type = 1,
+		.offset = 35
+	}, {
+		.name = "port_map",
+		.type = 1,
+		.offset = 72
+	}, {
 		.name = "sock_map",
 		.type = 1,
-		.offset = 26
+		.offset = 181
 	}, {
 		.name = NULL,
 		.type = 0,

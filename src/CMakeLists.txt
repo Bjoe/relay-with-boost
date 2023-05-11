@@ -15,6 +15,7 @@ target_sources(btur
     sockmap/sockmap-ebpf.c
 
     iosubmit.h
+    sockmap.h
 )
 target_link_libraries(
   btur

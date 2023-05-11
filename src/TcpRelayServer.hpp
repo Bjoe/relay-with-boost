@@ -9,6 +9,7 @@
 #include <boost/array.hpp>
 #include <boost/optional.hpp>
 #include "options.hpp"
+#include "sockmap.h"
 
 namespace relay {
 
@@ -52,7 +53,7 @@ public:
     boost::asio::io_context& io_context,
     const RelayTcpEndpoint &endpoint,
     const std::size_t buffer_size,
-    int sock_map,
+    struct sockmap sock_map,
     Options options);
 
     void start();
@@ -63,7 +64,7 @@ private:
     boost::asio::ip::tcp::acceptor local_tcp_acceptor_;
     boost::asio::ip::tcp::endpoint destination_endpoint_;
     const std::size_t buffer_size_{};
-    int sock_map_{};
+    sockmap socketsmaps_{};
     Options options_{};
     std::vector<std::shared_ptr<TcpSession>> sessions_;
 };

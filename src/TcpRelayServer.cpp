@@ -25,7 +25,7 @@ public:
     std::shared_ptr<boost::asio::ip::tcp::socket> peerSocket,
     boost::asio::ip::tcp::endpoint destinationEndpoint,
     const std::size_t buffer_size,
-    int sock_map,
+    struct sockmap sock_map,
     Options options) :
         peerSocket_{std::move(peerSocket)},
         clientSocket_{io_context},
@@ -33,7 +33,7 @@ public:
         serverBuffer_(buffer_size),
         clientBuffer_(buffer_size),
         buffer_size_(buffer_size),
-        sock_map_(sock_map),
+        socketmaps_(std::move(sock_map)),
         options_(options)
     {
     }
@@ -91,6 +91,12 @@ public:
 
     void sockmap_relay()
     {
+        BOOST_LOG_TRIVIAL(trace) << "peerSocket->local_endpoint(): " << peerSocket_->local_endpoint() << " peerSocket_->remote_endpoint(): " << peerSocket_->remote_endpoint();
+        BOOST_LOG_TRIVIAL(trace) << "clientSocket->local_endpoint(): " << clientSocket_.local_endpoint() << " clientSokcet->remote_endpoint(): " << clientSocket_.remote_endpoint();
+
+        auto peerRemotePort = peerSocket_->remote_endpoint().port();
+        auto clientLocalPort = clientSocket_.local_endpoint().port();
+
         int fd = peerSocket_->native_handle();
         int fd_out = clientSocket_.native_handle();
         {
@@ -103,9 +109,17 @@ public:
 
         /* [*] Perform ebpf socket magic */
         /* Add socket to SOCKMAP. Otherwise the ebpf won't work. */
-        int idx = 0;
+        int idx = socketmaps_.sock_last_index++;
         int val = fd;
-        int r = tbpf_map_update_elem(sock_map_, &idx, &val, BPF_ANY);
+        BOOST_LOG_TRIVIAL(trace) << "Store peerSocket with peerRemotePort key -> " << peerRemotePort << " " << &peerRemotePort << " index " << idx;
+        int r = tbpf_map_update_elem(socketmaps_.sock_map, &idx, &val, BPF_ANY);
+        if (r != 0) {
+          if (errno == EOPNOTSUPP) {
+            throw std::logic_error("pushing closed socket to sockmap?");
+          }
+          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+        }
+        r = tbpf_map_update_elem(socketmaps_.port_map, &peerRemotePort, &idx, BPF_ANY);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
@@ -113,15 +127,64 @@ public:
           throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
         }
 
-        int idx_out = 1;
-        int val_out = fd_out;
-        r = tbpf_map_update_elem(sock_map_, &idx_out, &val_out, BPF_ANY);
+        int verify{};
+        r = tbpf_map_lookup_elem(socketmaps_.port_map, &peerRemotePort, &verify);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
           }
           throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
         }
+        BOOST_LOG_TRIVIAL(trace) << "Verify peerSocket with peerRemotePort key -> " << peerRemotePort << " index " << verify;
+
+
+
+
+        int idx_out = socketmaps_.sock_last_index++;
+        int val_out = fd_out;
+        BOOST_LOG_TRIVIAL(trace) << "Store clientSocket with clientLocalPort key -> " << clientLocalPort << " " << &clientLocalPort << " index " << idx_out;
+        r = tbpf_map_update_elem(socketmaps_.sock_map, &idx_out, &val_out, BPF_ANY);
+        if (r != 0) {
+          if (errno == EOPNOTSUPP) {
+            throw std::logic_error("pushing closed socket to sockmap?");
+          }
+          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+        }
+        r = tbpf_map_update_elem(socketmaps_.port_map, &clientLocalPort, &idx_out, BPF_ANY);
+        if (r != 0) {
+          if (errno == EOPNOTSUPP) {
+            throw std::logic_error("pushing closed socket to sockmap?");
+          }
+          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+        }
+
+        int verify_out{};
+        r = tbpf_map_lookup_elem(socketmaps_.port_map, &clientLocalPort, &verify_out);
+        if (r != 0) {
+          if (errno == EOPNOTSUPP) {
+            throw std::logic_error("pushing closed socket to sockmap?");
+          }
+          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+        }
+        BOOST_LOG_TRIVIAL(trace) << "Verify clientSocket with clientLocalPort key -> " << clientLocalPort << " index " << verify_out;
+
+
+
+        int index = 0;
+        int value = 3;
+        r = tbpf_map_update_elem(socketmaps_.arr_map, &index, &value, BPF_ANY);
+        if (r != 0) {
+          if (errno == EOPNOTSUPP) {
+            throw std::logic_error("pushing closed socket to sockmap?");
+          }
+          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+        }
+
+
+
+
+
+
 
         /* [*] Wait for the socket to close. Let sockmap do the magic. */
         struct pollfd fds[1]{};
@@ -146,7 +209,7 @@ public:
 
         /* Cleanup the entry from sockmap. */
         idx = 0;
-        r = tbpf_map_delete_elem(sock_map_, &idx);
+        r = tbpf_map_delete_elem(socketmaps_.sock_map, &idx);
         if (r != 0) {
           if (errno == EINVAL) {
             BOOST_LOG_TRIVIAL(error) << "[-] Removing closed sock from sockmap\n";
@@ -488,22 +551,21 @@ private:
     std::vector<char> serverBuffer_;
     std::vector<char> clientBuffer_;
     const std::size_t buffer_size_{};
-    int sock_map_{};
+    struct sockmap socketmaps_{};
     Options options_{};
     std::vector<std::thread> runnerThreads_{};
 };
 
-TcpRelayServer::TcpRelayServer(
-  boost::asio::io_context& io_context,
+TcpRelayServer::TcpRelayServer(boost::asio::io_context& io_context,
   const RelayTcpEndpoint& endpoint,
   const std::size_t buffer_size,
-  int sock_map,
+  sockmap sock_map,
   Options options) :
     io_context_(io_context),
     local_tcp_acceptor_{io_context, endpoint.localEndpoint()},
     destination_endpoint_{endpoint.destinationEndpoint()},
     buffer_size_(buffer_size),
-    sock_map_(sock_map),
+    socketsmaps_(std::move(sock_map)),
     options_(options)
 {
 }
@@ -523,7 +585,7 @@ void TcpRelayServer::start()
                   peerSocket,
                   destination_endpoint_,
                   buffer_size_,
-                  sock_map_,
+                  socketsmaps_,
                   options_);
                 instance->start();
                 sessions_.push_back(instance);

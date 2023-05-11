@@ -15,6 +15,7 @@
 extern "C" {
 #include "sockmap/tbpf.h"
 };
+#include "sockmap.h"
 
 constexpr int LOCAL_PORT = 20000;
 constexpr int BUFFER_SIZE = 8192;
@@ -99,7 +100,7 @@ int main(int argc, char* argv[])
             return EXIT_FAILURE;
         }
 
-        int sock_map{};
+        struct sockmap socketmaps{};
         if(options == Options::SOCKMAP_RELAY) {
             /*
              * Initialize ebpf
@@ -113,16 +114,34 @@ int main(int argc, char* argv[])
             setrlimit(RLIMIT_MEMLOCK, &rlim);
 
             /* [*] Prepare ebpf */
-            sock_map = tbpf_create_map(BPF_MAP_TYPE_SOCKMAP, sizeof(int),
-              sizeof(int), 2, 0);
-            if (sock_map < 0) {
+            socketmaps.sock_map = tbpf_create_map(BPF_MAP_TYPE_SOCKMAP, sizeof(int),
+              sizeof(int), socketmaps.max_keys, 0);
+            if (socketmaps.sock_map < 0) {
               std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_SOCKMAP)\n";
+              return EXIT_FAILURE;
+            }
+
+            socketmaps.port_map = tbpf_create_map(BPF_MAP_TYPE_HASH, sizeof(int),
+                                       sizeof(int), socketmaps.max_keys, 0);
+            if (socketmaps.port_map < 0) {
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH)\n";
+              return EXIT_FAILURE;
+            }
+
+            socketmaps.arr_map = tbpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(int),
+                                                  sizeof(int), 1, 0);
+            if (socketmaps.arr_map < 0) {
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH)\n";
               return EXIT_FAILURE;
             }
 
             /* sockmap is only used in prog_verdict */
             tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
-              "sock_map", sock_map);
+              "sock_map", socketmaps.sock_map);
+            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
+              "port_map", socketmaps.port_map);
+            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
+                             "arr_map", socketmaps.arr_map);
 
             /* Load prog_parser and prog_verdict */
             char log_buf[16 * 1024];
@@ -148,19 +167,25 @@ int main(int argc, char* argv[])
              * to both parser and verdict programs, even though in parser
              * we don't use it. The whole point is to make prog_parser
              * hooked to SOCKMAP.*/
-            int r = tbpf_prog_attach(bpf_parser, sock_map, BPF_SK_SKB_STREAM_PARSER,
+            int r = tbpf_prog_attach(bpf_parser, socketmaps.sock_map, BPF_SK_SKB_STREAM_PARSER,
               0);
             if (r < 0) {
               std::cerr << "bpf(PROG_ATTACH)\n";
               return EXIT_FAILURE;
             }
 
-            r = tbpf_prog_attach(bpf_verdict, sock_map, BPF_SK_SKB_STREAM_VERDICT,
-              0);
+            r = tbpf_prog_attach(bpf_verdict, socketmaps.sock_map, BPF_SK_SKB_STREAM_VERDICT,
+                                 0);
             if (r < 0) {
               std::cerr << "bpf(PROG_ATTACH)\n";
               return EXIT_FAILURE;
             }
+//            r = tbpf_prog_attach(bpf_verdict, socketmaps.port_map, BPF_SK_SKB_STREAM_VERDICT,
+//                                 0);
+//            if (r < 0) {
+//              std::cerr << "bpf(PROG_ATTACH)\n";
+//              return EXIT_FAILURE;
+//            }
             /*************************************************************************/
         }
 
@@ -187,7 +212,7 @@ int main(int argc, char* argv[])
         relay::UdpRelayServer server(io_context, relayUdpEndpoint, buffer_size);
         server.do_receive();
 
-        relay::TcpRelayServer tcpServer(io_context, relayEndpoint, buffer_size, sock_map, options);
+        relay::TcpRelayServer tcpServer(io_context, relayEndpoint, buffer_size, socketmaps, options);
         tcpServer.start();
 
         io_context.run();
