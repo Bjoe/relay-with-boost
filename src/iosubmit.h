@@ -1,3 +1,4 @@
+#include <bits/types/struct_timespec.h>
 #include <linux/aio_abi.h>
 #include <sys/syscall.h>
 #include <unistd.h>
@@ -17,7 +18,7 @@ inline int io_submit(aio_context_t ctx, long nr, struct iocb **iocbpp)
 	return syscall(__NR_io_submit, ctx, nr, iocbpp);
 }
 
-#define read_barrier() __asm__ __volatile__("lfence" ::: "memory")
+#define read_barrier() //__asm__ __volatile__("lfence" ::: "memory")
 
 #define AIO_RING_MAGIC 0xa10a10a1
 
