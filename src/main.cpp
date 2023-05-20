@@ -1,4 +1,5 @@
 #include <iostream>
+#include <errno.h>
 #include <csignal>
 #include <boost/asio.hpp>
 #include <boost/program_options.hpp>
@@ -47,58 +48,35 @@ std::istream& operator>>(std::istream& in, Options& options)
 
 int main(int argc, char* argv[])
 {
+  boost::program_options::options_description desc{"Options"};
     try
     {
-        boost::program_options::options_description desc{"Options"};
         desc.add_options()
             ("help,h", "Help screen")
-            ("local_address,a", boost::program_options::value<std::string>(), "Local listen ip")
+          ("local_address,a", boost::program_options::value<std::string>()->required(), "Local listen ip")
             ("local_port,l", boost::program_options::value<unsigned short>()->default_value(LOCAL_PORT), "Local listen port")
-            ("nat_address,n", boost::program_options::value<std::string>(), "NAT ip address")
+          ("nat_address,n", boost::program_options::value<std::string>()->required(), "NAT ip address")
             ("buffer_size,b", boost::program_options::value<std::size_t>()->default_value(BUFFER_SIZE), "Buffer size")
-            ("destination_ip,i", boost::program_options::value<std::string>(), "Destination IP address")
-            ("destination_port,p", boost::program_options::value<unsigned short>(), "Destination port")
+          ("destination_ip,i", boost::program_options::value<std::string>()->required(), "Destination IP address")
+          ("destination_port,p", boost::program_options::value<unsigned short>()->required(), "Destination port")
             ("relay,r", boost::program_options::value<Options>()->required(), "Relay option")
             ;
 
         boost::program_options::variables_map variables_map;
         store(parse_command_line(argc, argv, desc), variables_map);
-        notify(variables_map);
 
         if (variables_map.count("help") != 0U) {
             std::cout << desc << '\n';
             return EXIT_SUCCESS;
         }
 
-        if(variables_map.count("local_address") == 0U) {
-            std::cerr << "Local IP address is needed." << '\n';
-            std::cout << desc << '\n';
-            return EXIT_FAILURE;
-        }
-
-        if(variables_map.count("nat_address") == 0U) {
-            std::cerr << "NAT IP address is needed." << '\n';
-            std::cout << desc << '\n';
-            return EXIT_FAILURE;
-        }
+        notify(variables_map);
 
         Options options = variables_map["relay"].as<Options>();
         auto port = variables_map["local_port"].as<const unsigned short>();
         auto buffer_size = variables_map["buffer_size"].as<const std::size_t>();
         auto localAddress = variables_map["local_address"].as<std::string>();
         auto natAddress = variables_map["nat_address"].as<std::string>();
-
-        if(variables_map.count("destination_ip") == 0U) {
-            std::cerr << "Destination IP address is needed." << '\n';
-            std::cout << desc << '\n';
-            return EXIT_FAILURE;
-        }
-
-        if(variables_map.count("destination_port") == 0U) {
-            std::cerr << "Destination port is needed" << '\n';
-            std::cout << desc << '\n';
-            return EXIT_FAILURE;
-        }
 
         struct sockmap socketmaps{};
         if(options == Options::SOCKMAP_RELAY) {
@@ -117,21 +95,21 @@ int main(int argc, char* argv[])
             socketmaps.sock_map = tbpf_create_map(BPF_MAP_TYPE_SOCKMAP, sizeof(int),
               sizeof(int), socketmaps.max_keys, 0);
             if (socketmaps.sock_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_SOCKMAP)\n";
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_SOCKMAP) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
             socketmaps.port_map = tbpf_create_map(BPF_MAP_TYPE_HASH, sizeof(int),
                                        sizeof(int), socketmaps.max_keys, 0);
             if (socketmaps.port_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH)\n";
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
             socketmaps.arr_map = tbpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(int),
                                                   sizeof(int), 1, 0);
             if (socketmaps.arr_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH)\n";
+              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
@@ -150,7 +128,7 @@ int main(int argc, char* argv[])
               bpf_insn_prog_parser_cnt, "Dual BSD/GPL",
               KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
             if (bpf_parser < 0) {
-              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_parser)\n";
+              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_parser) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
@@ -159,7 +137,7 @@ int main(int argc, char* argv[])
               bpf_insn_prog_verdict_cnt, "Dual BSD/GPL",
               KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
             if (bpf_verdict < 0) {
-              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_verdict)\n";
+              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_verdict) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
@@ -170,14 +148,14 @@ int main(int argc, char* argv[])
             int r = tbpf_prog_attach(bpf_parser, socketmaps.sock_map, BPF_SK_SKB_STREAM_PARSER,
               0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH)\n";
+              std::cerr << "bpf(PROG_ATTACH) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
             r = tbpf_prog_attach(bpf_verdict, socketmaps.sock_map, BPF_SK_SKB_STREAM_VERDICT,
                                  0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH)\n";
+              std::cerr << "bpf(PROG_ATTACH) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 //            r = tbpf_prog_attach(bpf_verdict, socketmaps.port_map, BPF_SK_SKB_STREAM_VERDICT,
@@ -217,16 +195,24 @@ int main(int argc, char* argv[])
 
         io_context.run();
     }
-    catch (std::exception& e)
-    {
-       //BOOST_LOG_TRIVIAL(error) << e.what();
-        std::cerr << e.what();
-    }
-    catch (...)
-    {
-        //BOOST_LOG_TRIVIAL(error) << boost::current_exception_diagnostic_information();
+    catch (const boost::program_options::required_option& e) {
+        std::cerr << "Error: Required option '" << e.get_option_name() << "' is missing.\n";
+        std::cout << desc << '\n';
+        return EXIT_FAILURE;
+    } catch (const boost::program_options::invalid_option_value& e) {
+        std::cerr << "Error: Invalid value for option '" << e.get_option_name() << "'.\n";
+        std::cout << desc << '\n';
+        return EXIT_FAILURE;
+    } catch (const boost::program_options::multiple_values& e) {
+        std::cerr << "Error: Multiple values provided for option '" << e.get_option_name() << "'.\n";
+        std::cout << desc << '\n';
+        return EXIT_FAILURE;
+    } catch (std::exception& e) {
+        std::cerr << e.what() << '\n';
+        return EXIT_FAILURE;
+    } catch (...) {
         std::cerr << boost::current_exception_diagnostic_information();
+        return EXIT_FAILURE;
     }
-
     return EXIT_SUCCESS;
 }
