@@ -31,3 +31,7 @@ target_link_libraries(
 )
 
 target_include_directories(btur PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
+
+
+install(TARGETS btur
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
