@@ -18,6 +18,8 @@ extern "C" {
 };
 #include "sockmap.h"
 
+#include "bpf/libbpf.h"
+
 constexpr int LOCAL_PORT = 20000;
 constexpr int BUFFER_SIZE = 8192;
 
@@ -48,6 +50,10 @@ std::istream& operator>>(std::istream& in, Options& options)
 
 int main(int argc, char* argv[])
 {
+  const char buffer[1] = { '\0' };
+  struct bpf_object* obj = bpf_object__open_mem(buffer, 1, NULL);
+  bpf_object__close(obj);
+
   boost::program_options::options_description desc{"Options"};
     try
     {

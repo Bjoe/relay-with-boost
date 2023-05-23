@@ -129,6 +129,7 @@ add_library(myproject::project_options INTERFACE IMPORTED)
 add_library(myproject::project_warnings INTERFACE IMPORTED)
 
 find_package(Boost REQUIRED) # COMPONENTS headers program_options thread log) <- How this can be used in Conan 2.0 ?
+find_package(libbpf REQUIRED)
 
 # configure files based on CMake configuration options
 add_subdirectory(configured_files)

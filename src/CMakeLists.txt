@@ -17,12 +17,15 @@ target_sources(btur
     iosubmit.h
     sockmap.h
 )
+
 target_link_libraries(
   btur
   PUBLIC
   project_options
   project_warnings
 
+
+  libbpf::libbpf
   Boost::headers
   Boost::program_options
   Boost::log

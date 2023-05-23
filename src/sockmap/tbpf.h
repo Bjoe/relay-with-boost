@@ -1,4 +1,4 @@
-#define KERNEL_VERSION(a, b, c) ((a)*65536 + (b)*256 + (c))
+//#define KERNEL_VERSION(a, b, c) ((a)*65536 + (b)*256 + (c))
 
 /* tbpf.c */
 
