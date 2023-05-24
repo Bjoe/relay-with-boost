@@ -10,10 +10,6 @@ target_sources(btur
     UdpRelayServer.cpp
     UdpRelayServer.hpp
 
-    sockmap/tbpf.h
-    sockmap/tbpf.c
-    sockmap/sockmap-ebpf.c
-
     iosubmit.h
     sockmap.h
 )
