@@ -11,6 +11,8 @@ set(CMAKE_CXX_STANDARD 14)
 # when compiling with PCH enabled
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+
 # Note: by default ENABLE_DEVELOPER_MODE is True
 # This means that all analysis (sanitizers, static analysis)
 # is enabled and all warnings are treated as errors
@@ -129,7 +131,8 @@ add_library(myproject::project_options INTERFACE IMPORTED)
 add_library(myproject::project_warnings INTERFACE IMPORTED)
 
 find_package(Boost REQUIRED) # COMPONENTS headers program_options thread log) <- How this can be used in Conan 2.0 ?
-find_package(libbpf REQUIRED)
+find_package(LibBpf REQUIRED)
+find_package(BpfObject REQUIRED)
 
 # configure files based on CMake configuration options
 add_subdirectory(configured_files)

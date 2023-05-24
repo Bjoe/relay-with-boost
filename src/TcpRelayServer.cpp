@@ -9,9 +9,9 @@
 #include <linux/bpf.h>
 #include <fcntl.h> // to add splice()
 #include <linux/aio_abi.h> // to add iocb
+#include <bpf/bpf.h>
 
 extern "C" {
-#include "sockmap/tbpf.h"
 #include "iosubmit.h" // this implementation can't crosscompile, use libaio -> https://pagure.io/libaio
 };
 
@@ -95,7 +95,9 @@ public:
         BOOST_LOG_TRIVIAL(trace) << "clientSocket->local_endpoint(): " << clientSocket_.local_endpoint() << " clientSokcet->remote_endpoint(): " << clientSocket_.remote_endpoint();
 
         auto peerRemotePort = peerSocket_->remote_endpoint().port();
-        auto clientLocalPort = clientSocket_.local_endpoint().port();
+        auto peerRemoteIp = peerSocket_->remote_endpoint().address();
+        auto clientRemotePort = clientSocket_.remote_endpoint().port();
+        auto clientRemoteIp = clientSocket_.remote_endpoint().address();
 
         int fd = peerSocket_->native_handle();
         int fd_out = clientSocket_.native_handle();
@@ -107,114 +109,105 @@ public:
           setsockopt(fd, SOL_SOCKET, SO_SNDBUF, &val, sizeof(val));
         }
 
+        int sock_map = bpf_object__find_map_fd_by_name(socketmaps_.skel->obj, "sock_map");
+        int ip_map = bpf_object__find_map_fd_by_name(socketmaps_.skel->obj, "ip_map");
+
         /* [*] Perform ebpf socket magic */
         /* Add socket to SOCKMAP. Otherwise the ebpf won't work. */
         int idx = socketmaps_.sock_last_index++;
         int val = fd;
-        BOOST_LOG_TRIVIAL(trace) << "Store peerSocket with peerRemotePort key -> " << peerRemotePort << " " << &peerRemotePort << " index " << idx;
-        int r = tbpf_map_update_elem(socketmaps_.sock_map, &idx, &val, BPF_ANY);
+        int r = bpf_map_update_elem(sock_map, &idx, &val, BPF_ANY);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
           }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+          std::stringstream out{};
+          out << "bpf(MAP_UPDATE_ELEM, sock_map) : " << strerror(errno) << '\n';
+          throw std::logic_error(out.str());
         }
-        r = tbpf_map_update_elem(socketmaps_.port_map, &peerRemotePort, &idx, BPF_ANY);
-        if (r != 0) {
-          if (errno == EOPNOTSUPP) {
-            throw std::logic_error("pushing closed socket to sockmap?");
-          }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
-        }
-
-        int verify{};
-        r = tbpf_map_lookup_elem(socketmaps_.port_map, &peerRemotePort, &verify);
-        if (r != 0) {
-          if (errno == EOPNOTSUPP) {
-            throw std::logic_error("pushing closed socket to sockmap?");
-          }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
-        }
-        BOOST_LOG_TRIVIAL(trace) << "Verify peerSocket with peerRemotePort key -> " << peerRemotePort << " index " << verify;
-
-
-
 
         int idx_out = socketmaps_.sock_last_index++;
         int val_out = fd_out;
-        BOOST_LOG_TRIVIAL(trace) << "Store clientSocket with clientLocalPort key -> " << clientLocalPort << " " << &clientLocalPort << " index " << idx_out;
-        r = tbpf_map_update_elem(socketmaps_.sock_map, &idx_out, &val_out, BPF_ANY);
+        r = bpf_map_update_elem(sock_map, &idx_out, &val_out, BPF_ANY);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
           }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+          std::stringstream out{};
+          out << "out bpf(MAP_UPDATE_ELEM, sock_map) : " << strerror(errno) << '\n';
+          throw std::logic_error(out.str());
         }
-        r = tbpf_map_update_elem(socketmaps_.port_map, &clientLocalPort, &idx_out, BPF_ANY);
+
+
+        uint64_t key = (static_cast<uint64_t>(peerRemoteIp.to_v4().to_uint()) << 32) | peerRemotePort;
+        BOOST_LOG_TRIVIAL(trace) << "Store peerRemoteIp " << peerRemoteIp.to_string()
+                                 << " ip4 uint " << peerRemoteIp.to_v4().to_uint()
+                                 << " port " << peerRemotePort
+                                 << " with peerRemotePort key -> " << key << " index " << idx_out;
+        r = bpf_map_update_elem(ip_map, &key, &idx_out, BPF_ANY);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
           }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+          std::stringstream out{};
+          out << "bpf(MAP_UPDATE_ELEM, ip_map) : " << strerror(errno) << '\n';
+          throw std::logic_error(out.str());
         }
 
-        int verify_out{};
-        r = tbpf_map_lookup_elem(socketmaps_.port_map, &clientLocalPort, &verify_out);
+        uint64_t key_out = (static_cast<uint64_t>(clientRemoteIp.to_v4().to_uint()) << 32) | clientRemotePort;
+        BOOST_LOG_TRIVIAL(trace) << "Store clientRemoteIp " << clientRemoteIp.to_string()
+                                 << " ip4 uint " << clientRemoteIp.to_v4().to_uint()
+                                 << " with port " << clientRemotePort
+                                 << " key -> " << key_out << " index " << idx;
+        r = bpf_map_update_elem(ip_map, &key_out, &idx, BPF_ANY);
         if (r != 0) {
           if (errno == EOPNOTSUPP) {
             throw std::logic_error("pushing closed socket to sockmap?");
           }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
+          std::stringstream out{};
+          out << "out bpf(MAP_UPDATE_ELEM, port_map) : " << strerror(errno) << '\n';
+          throw std::logic_error("");
         }
-        BOOST_LOG_TRIVIAL(trace) << "Verify clientSocket with clientLocalPort key -> " << clientLocalPort << " index " << verify_out;
-
-
-
-        int index = 0;
-        int value = 3;
-        r = tbpf_map_update_elem(socketmaps_.arr_map, &index, &value, BPF_ANY);
-        if (r != 0) {
-          if (errno == EOPNOTSUPP) {
-            throw std::logic_error("pushing closed socket to sockmap?");
-          }
-          throw std::logic_error("bpf(MAP_UPDATE_ELEM)");
-        }
-
-
-
-
-
 
 
         /* [*] Wait for the socket to close. Let sockmap do the magic. */
-        struct pollfd fds[1]{};
+        struct pollfd fds[2]{};
         fds[0].fd = fd;
         fds[0].events = POLLRDHUP;
+        fds[1].fd = fd_out;
+        fds[1].events = POLLRDHUP;
 
-        poll(fds, 1, -1);
-
+        poll(fds, sizeof(fds) / sizeof(fds[0]), -1);
         /* Was there a socket error? */
         {
           int err;
           socklen_t err_len = sizeof(err);
           r = getsockopt(fd, SOL_SOCKET, SO_ERROR, &err, &err_len);
           if (r < 0) {
-            throw std::logic_error("getsockopt()");
-          }
-          errno = err;
-          if (errno) {
-            throw std::logic_error("sockmap fd");
+            BOOST_LOG_TRIVIAL(error) << "getsockopt() " << strerror(errno) << '\n';
+          } else {
+              errno = err;
+              if (errno) {
+                BOOST_LOG_TRIVIAL(error) << "sockmap fd " << strerror(errno) << '\n';
+              }
           }
         }
 
         /* Cleanup the entry from sockmap. */
-        idx = 0;
-        r = tbpf_map_delete_elem(socketmaps_.sock_map, &idx);
+        r = bpf_map_delete_elem(sock_map, &idx);
         if (r != 0) {
           if (errno == EINVAL) {
             BOOST_LOG_TRIVIAL(error) << "[-] Removing closed sock from sockmap\n";
           } else {
-            throw std::logic_error("bpf(MAP_DELETE_ELEM, sock_map)");
+            BOOST_LOG_TRIVIAL(error) << "bpf(MAP_DELETE_ELEM, sock_map) : " << strerror(errno) << '\n';
+          }
+        }
+        r = bpf_map_delete_elem(ip_map, &key);
+        if (r != 0) {
+          if (errno == EINVAL) {
+            BOOST_LOG_TRIVIAL(error) << "[-] Removing from port_map\n";
+          } else {
+            BOOST_LOG_TRIVIAL(error) << "bpf(MAP_DELETE_ELEM, port_map) : " << strerror(errno) << '\n';
           }
         }
         close(fd);

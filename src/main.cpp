@@ -11,14 +11,12 @@
 
 #include "options.hpp"
 
-#include <linux/bpf.h>
+#include <bpf/bpf.h>
 #include <sys/resource.h>
-extern "C" {
-#include "sockmap/tbpf.h"
-};
-#include "sockmap.h"
+#include <bpf/libbpf.h>
 
-#include "bpf/libbpf.h"
+#include "sockmap.h"
+#include "sockmap.skel.h"
 
 constexpr int LOCAL_PORT = 20000;
 constexpr int BUFFER_SIZE = 8192;
@@ -48,12 +46,21 @@ std::istream& operator>>(std::istream& in, Options& options)
   return in;
 }
 
+static const char *LEVEL[] =
+    {
+        "WARN",
+        "INFO",
+        "DEBUG"
+};
+
+static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va_list args)
+{
+    fprintf(stderr, "[libbpf %s]: ", LEVEL[level]);
+    return vfprintf(stderr, format, args);
+}
+
 int main(int argc, char* argv[])
 {
-  const char buffer[1] = { '\0' };
-  struct bpf_object* obj = bpf_object__open_mem(buffer, 1, NULL);
-  bpf_object__close(obj);
-
   boost::program_options::options_description desc{"Options"};
     try
     {
@@ -86,64 +93,43 @@ int main(int argc, char* argv[])
 
         struct sockmap socketmaps{};
         if(options == Options::SOCKMAP_RELAY) {
-            /*
-             * Initialize ebpf
-             */
-            /* [*] SOCKMAP requires more than 16MiB of locked mem */
-            struct rlimit rlim;
-            rlim.rlim_cur = 128 * 1024 * 1024;
-            rlim.rlim_max = 128 * 1024 * 1024;
+            /* Set up libbpf errors and debug info callback */
+            libbpf_set_print(libbpf_print_fn);
 
-            /* ignore error */
-            setrlimit(RLIMIT_MEMLOCK, &rlim);
+            /* Bump RLIMIT_MEMLOCK to allow BPF sub-system to do anything */
+            struct rlimit rlim_new = {
+                .rlim_cur  = RLIM_INFINITY,
+                .rlim_max  = RLIM_INFINITY,
+            };
 
-            /* [*] Prepare ebpf */
-            socketmaps.sock_map = tbpf_create_map(BPF_MAP_TYPE_SOCKMAP, sizeof(int),
-              sizeof(int), socketmaps.max_keys, 0);
-            if (socketmaps.sock_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_SOCKMAP) " << strerror(errno) << '\n';
-              return EXIT_FAILURE;
+            if (setrlimit(RLIMIT_MEMLOCK, &rlim_new)) {
+                std::cerr << "Failed to increase RLIMIT_MEMLOCK limit!\n";
+                return EXIT_FAILURE;
             }
 
-            socketmaps.port_map = tbpf_create_map(BPF_MAP_TYPE_HASH, sizeof(int),
-                                       sizeof(int), socketmaps.max_keys, 0);
-            if (socketmaps.port_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH) " << strerror(errno) << '\n';
-              return EXIT_FAILURE;
+            /* Open BPF application */
+            socketmaps.skel = sockmap_bpf__open();
+            if (!socketmaps.skel) {
+                std::cerr << "Failed to open BPF skeleton\n";
+                return EXIT_FAILURE;
             }
 
-            socketmaps.arr_map = tbpf_create_map(BPF_MAP_TYPE_ARRAY, sizeof(int),
-                                                  sizeof(int), 1, 0);
-            if (socketmaps.arr_map < 0) {
-              std::cerr << "bpf(BPF_MAP_CREATE, BPF_MAP_TYPE_HASH) " << strerror(errno) << '\n';
-              return EXIT_FAILURE;
+            /* Parameterize BPF code with ... */
+            //socketmaps.skel....
+
+            /* Load & verify BPF programs */
+            int err = sockmap_bpf__load(socketmaps.skel);
+            if (err) {
+                std::cerr << "Failed to load and verify BPF skeleton\n";
+                sockmap_bpf__destroy(socketmaps.skel);
+                return EXIT_FAILURE;
             }
 
-            /* sockmap is only used in prog_verdict */
-            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
-              "sock_map", socketmaps.sock_map);
-            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
-              "port_map", socketmaps.port_map);
-            tbpf_fill_symbol(bpf_insn_prog_verdict, bpf_reloc_prog_verdict,
-                             "arr_map", socketmaps.arr_map);
-
-            /* Load prog_parser and prog_verdict */
-            char log_buf[16 * 1024];
-            int bpf_parser = tbpf_load_program(
-              BPF_PROG_TYPE_SK_SKB, bpf_insn_prog_parser,
-              bpf_insn_prog_parser_cnt, "Dual BSD/GPL",
-              KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
-            if (bpf_parser < 0) {
-              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_parser) " << strerror(errno) << '\n';
-              return EXIT_FAILURE;
-            }
-
-            int bpf_verdict = tbpf_load_program(
-              BPF_PROG_TYPE_SK_SKB, bpf_insn_prog_verdict,
-              bpf_insn_prog_verdict_cnt, "Dual BSD/GPL",
-              KERNEL_VERSION(4, 4, 0), log_buf, sizeof(log_buf));
-            if (bpf_verdict < 0) {
-              std::cerr << "Bpf Log:\n" << log_buf << "\n bpf(BPF_PROG_LOAD, prog_verdict) " << strerror(errno) << '\n';
+            /* Attach tracepoint handler */
+            err = sockmap_bpf__attach(socketmaps.skel);
+            if (err) {
+              std::cerr << "Failed to attach BPF skeleton\n";
+              sockmap_bpf__destroy(socketmaps.skel);
               return EXIT_FAILURE;
             }
 
@@ -151,25 +137,21 @@ int main(int argc, char* argv[])
              * to both parser and verdict programs, even though in parser
              * we don't use it. The whole point is to make prog_parser
              * hooked to SOCKMAP.*/
-            int r = tbpf_prog_attach(bpf_parser, socketmaps.sock_map, BPF_SK_SKB_STREAM_PARSER,
-              0);
+            int sock_map = bpf_object__find_map_fd_by_name(socketmaps.skel->obj, "sock_map");
+            bpf_program* bpf_parser = bpf_object__find_program_by_name(socketmaps.skel->obj, "_prog_parser");
+            bpf_program* bpf_verdict = bpf_object__find_program_by_name(socketmaps.skel->obj, "_prog_verdict");
+
+            int r = bpf_prog_attach(bpf_program__fd(bpf_parser), sock_map, BPF_SK_SKB_STREAM_PARSER, 0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH) " << strerror(errno) << '\n';
+              std::cerr << "bpf(PROG_ATTACH, bpf_parser, sock_map) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
-            r = tbpf_prog_attach(bpf_verdict, socketmaps.sock_map, BPF_SK_SKB_STREAM_VERDICT,
-                                 0);
+            r = bpf_prog_attach(bpf_program__fd(bpf_verdict), sock_map, BPF_SK_SKB_STREAM_VERDICT, 0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH) " << strerror(errno) << '\n';
+              std::cerr << "bpf(PROG_ATTACH, bpf_verdict, sock_map) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
-//            r = tbpf_prog_attach(bpf_verdict, socketmaps.port_map, BPF_SK_SKB_STREAM_VERDICT,
-//                                 0);
-//            if (r < 0) {
-//              std::cerr << "bpf(PROG_ATTACH)\n";
-//              return EXIT_FAILURE;
-//            }
             /*************************************************************************/
         }
 

@@ -1,4 +1,5 @@
 
+
 add_executable(btur)
 
 target_sources(btur
@@ -14,14 +15,19 @@ target_sources(btur
     sockmap.h
 )
 
+# Build object skeleton and depend skeleton on libbpf build
+bpf_object(sockmap sockmap.bpf.c)
+
 target_link_libraries(
   btur
   PUBLIC
   project_options
   project_warnings
 
+  sockmap_skel
 
-  libbpf::libbpf
+  ${LIBBPF_LIBRARIES}
+  #libbpf::libbpf
   Boost::headers
   Boost::program_options
   Boost::log
@@ -29,7 +35,12 @@ target_link_libraries(
 #  PRIVATE CLI11::CLI11 fmt::fmt spdlog::spdlog
 )
 
-target_include_directories(btur PRIVATE "${CMAKE_BINARY_DIR}/configured_files/include")
+target_include_directories(btur
+    PUBLIC
+    "${CMAKE_BINARY_DIR}/configured_files/include"
+    "${CMAKE_BINARY_DIR}/src"
+    "${LIBBPF_INCLUDE_DIRS}"
+)
 
 
 install(TARGETS btur
