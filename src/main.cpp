@@ -5,15 +5,14 @@
 #include <boost/program_options.hpp>
 #include <boost/exception/diagnostic_information.hpp>
 //#include <boost/log/trivial.hpp>
+#include <bpf/libbpf.h>
+#include <bpf/bpf.h>
+#include <sys/resource.h>
 
 #include "UdpRelayServer.hpp"
 #include "TcpRelayServer.hpp"
 
 #include "options.hpp"
-
-#include <bpf/bpf.h>
-#include <sys/resource.h>
-#include <bpf/libbpf.h>
 
 #include "sockmap.h"
 #include "sockmap.skel.h"
@@ -97,10 +96,9 @@ int main(int argc, char* argv[])
             libbpf_set_print(libbpf_print_fn);
 
             /* Bump RLIMIT_MEMLOCK to allow BPF sub-system to do anything */
-            struct rlimit rlim_new = {
-                .rlim_cur  = RLIM_INFINITY,
-                .rlim_max  = RLIM_INFINITY,
-            };
+            struct rlimit rlim_new;
+            rlim_new.rlim_cur  = RLIM_INFINITY;
+            rlim_new.rlim_max  = RLIM_INFINITY;
 
             if (setrlimit(RLIMIT_MEMLOCK, &rlim_new)) {
                 std::cerr << "Failed to increase RLIMIT_MEMLOCK limit!\n";

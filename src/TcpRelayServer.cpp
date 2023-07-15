@@ -6,10 +6,10 @@
 #include <errno.h>
 #include <thread>
 #include <sstream>
-#include <linux/bpf.h>
+//#include <linux/bpf.h>
+#include <bpf/bpf.h>
 #include <fcntl.h> // to add splice()
 #include <linux/aio_abi.h> // to add iocb
-#include <bpf/bpf.h>
 
 extern "C" {
 #include "iosubmit.h" // this implementation can't crosscompile, use libaio -> https://pagure.io/libaio
