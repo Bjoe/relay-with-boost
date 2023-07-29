@@ -211,6 +211,7 @@ public:
           }
         }
         close(fd);
+        close(fd_out);
     }
 
     void splice_relay()
