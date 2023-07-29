@@ -51,7 +51,8 @@ target_link_libraries(
 
   sockmap_skel
 
-  libbpf::libbpf
+  #libbpf::libbpf
+  PkgConfig::libbpf
   Boost::headers
   Boost::program_options
   Boost::log

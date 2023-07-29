@@ -131,7 +131,9 @@ add_library(myproject::project_options INTERFACE IMPORTED)
 add_library(myproject::project_warnings INTERFACE IMPORTED)
 
 find_package(Boost REQUIRED) # COMPONENTS headers program_options thread log) <- How this can be used in Conan 2.0 ?
-find_package(libbpf REQUIRED)
+#find_package(libbpf REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(libbpf REQUIRED IMPORTED_TARGET libbpf)
 set(LIBBPF_INCLUDE_DIRS ${libbpf_INCLUDE_DIRS})
 set(LIBBPF_LIBRARIES ${libbpf_LIBRARIES})
 find_package(BpfObject REQUIRED)
