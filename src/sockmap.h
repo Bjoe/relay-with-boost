@@ -2,6 +2,7 @@
 #define SOCKMAP_H
 
 #include "sockmap.skel.h"
+#include "sockmap.bpf.h"
 
 struct sockmap {
     int sock_map{};

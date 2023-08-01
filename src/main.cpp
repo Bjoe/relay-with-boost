@@ -135,19 +135,19 @@ int main(int argc, char* argv[])
              * to both parser and verdict programs, even though in parser
              * we don't use it. The whole point is to make prog_parser
              * hooked to SOCKMAP.*/
-            int sock_map = bpf_object__find_map_fd_by_name(socketmaps.skel->obj, "sock_map");
-            bpf_program* bpf_parser = bpf_object__find_program_by_name(socketmaps.skel->obj, "_prog_parser");
-            bpf_program* bpf_verdict = bpf_object__find_program_by_name(socketmaps.skel->obj, "_prog_verdict");
+            int sock_hash = bpf_object__find_map_fd_by_name(socketmaps.skel->obj, "sock_hash_rx");
+            bpf_program* bpf_parser = bpf_object__find_program_by_name(socketmaps.skel->obj, "bpf_prog_parser");
+            bpf_program* bpf_verdict = bpf_object__find_program_by_name(socketmaps.skel->obj, "bpf_prog_verdict");
 
-            int r = bpf_prog_attach(bpf_program__fd(bpf_parser), sock_map, BPF_SK_SKB_STREAM_PARSER, 0);
+            int r = bpf_prog_attach(bpf_program__fd(bpf_parser), sock_hash, BPF_SK_SKB_STREAM_PARSER, 0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH, bpf_parser, sock_map) " << strerror(errno) << '\n';
+              std::cerr << "bpf(PROG_ATTACH, bpf_parser, sock_hash) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
 
-            r = bpf_prog_attach(bpf_program__fd(bpf_verdict), sock_map, BPF_SK_SKB_STREAM_VERDICT, 0);
+            r = bpf_prog_attach(bpf_program__fd(bpf_verdict), sock_hash, BPF_SK_SKB_STREAM_VERDICT, 0);
             if (r < 0) {
-              std::cerr << "bpf(PROG_ATTACH, bpf_verdict, sock_map) " << strerror(errno) << '\n';
+              std::cerr << "bpf(PROG_ATTACH, bpf_verdict, sock_hash) " << strerror(errno) << '\n';
               return EXIT_FAILURE;
             }
             /*************************************************************************/
