@@ -44,5 +44,8 @@ int _prog_verdict(struct __sk_buff *skb)
         return SK_DROP;
     }
     bpf_printk("sockmap: _prog_verdict() bpf_map_lookup_elem with key %lu -> value %i", key, *idx);
-    return bpf_sk_redirect_map(skb, &sock_map, *idx, 0);
+    bpf_printk("sockmap: _prog_verdict() call -> bpf_sk_redirect_map()....");
+    int result = bpf_sk_redirect_map(skb, &sock_map, *idx, 0);
+    bpf_printk("sockmap: _prog_verdict() bpf_sk_redirect_map() -> %i", result);
+    return result;
 }
