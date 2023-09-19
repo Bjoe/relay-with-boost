@@ -37,4 +37,5 @@ Thumbs.db
 
 # conan output
 *.cmake
+!cmake/*.cmake
 *.sh
